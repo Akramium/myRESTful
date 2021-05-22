@@ -106,15 +106,16 @@ def update_price(cafe_id):
 def delete(cafe_id):
     api_key = request.args.get("api_key")
     cafe = db.session.query(Cafe).get(cafe_id)
-    if cafe:
-        if api_key == "TopSecretAPIKey":
+    if api_key == "TopSecretAPIKey":
+        cafe = db.session.query(Cafe).get(cafe_id)
+        if cafe:
             db.session.delete(cafe)
             db.session.commit()
-            return jsonify(success="You successfully deleted the coffee")
+            return jsonify(response={"success": "Successfully deleted the cafe from the database."}), 200
         else:
-            return jsonify(error="Sorry that's not allowed, Make Sure Your API Key is correct!")
+            return jsonify(error={"Not Found": "Sorry a cafe with that id was not found in the database."}), 404
     else:
-        return jsonify(error={"Not Found": "Sorry a cafe with that id was not found in the database."})
+        return jsonify(error={"Forbidden": "Sorry, that's not allowed. Make sure you have the correct api_key."}), 403
 
 
 if __name__ == '__main__':
