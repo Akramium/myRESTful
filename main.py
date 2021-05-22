@@ -64,7 +64,7 @@ def search():
         })
 
 
-@app.route('/add', methods=['GET', 'POST'])
+@app.route('/add', methods=['POST'])
 def add():
     pre_create_cafe = Cafe(
         name=request.args.get("name"),
@@ -89,7 +89,32 @@ def add():
 
 ## HTTP PUT/PATCH - Update Record
 
+@app.route('/update-price/<cafe_id>', methods=['PATCH'])
+def update_price(cafe_id):
+    new_price = request.args.get("new_price")
+    cafe = db.session.query(Cafe).get(cafe_id)
+    if cafe:
+        cafe.coffee_price = new_price
+        db.session.commit()
+        return jsonify(success="You successfully updated the price")
+    else:
+        return jsonify(error={"Not Found": "Sorry a cafe with that id was not found in the database."})
+
+
 ## HTTP DELETE - Delete Record
+@app.route('/report-closed/<cafe_id>', methods=['DELETE'])
+def delete(cafe_id):
+    api_key = request.args.get("api_key")
+    cafe = db.session.query(Cafe).get(cafe_id)
+    if cafe:
+        if api_key == "TopSecretAPIKey":
+            db.session.delete(cafe)
+            db.session.commit()
+            return jsonify(success="You successfully deleted the coffee")
+        else:
+            return jsonify(error="Sorry that's not allowed, Make Sure Your API Key is correct!")
+    else:
+        return jsonify(error={"Not Found": "Sorry a cafe with that id was not found in the database."})
 
 
 if __name__ == '__main__':
